@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work vs Play Time Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #121212;
+            --text-color: #ffffff;
+            --container-bg: #1e1e1e;
+            --button-hover: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            position: relative;
+        }
+
+        .container {
+            background-color: var(--container-bg);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            position: relative;
+            max-width: 600px;
+            width: 100%;
+            margin-bottom: 60px;
+        }
+
+        h1 {
+            color: var(--text-color);
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 300;
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 1rem;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            border-radius: 50px;
+            transition: all 0.3s;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #workingBtn {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        #stopBtn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        #playingBtn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        /* #timeLegend {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.2rem;
+            width: 100%;
+        }
+
+        #workingLegend, #playingLegend {
+            display: inline-block;
+            margin: 0 10px;
+        } */
+
+        button:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .active {
+            box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0.3);
+        }
+
+        #timer {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 300;
+        }
+
+        #chartContainer {
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .chart-legend {
+            position: absolute;
+            right: -120px;
+            top: 50%;
+            transform: translateY(-50%);
+            text-align: left;
+        }
+
+        .chart-legend div {
+            margin-bottom: 10px;
+        }
+
+        #resetBtn, #inspireBtn {
+            position: absolute;
+            bottom: 10px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        #resetBtn {
+            left: 10px;
+            background-color: #ff9800;
+            color: black;
+        }
+
+        #inspireBtn {
+            right: 10px;
+            background-color: #9c27b0;
+            color: white;
+        }
+
+        .theme-switch-wrapper {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+        }
+
+        .theme-switch {
+            display: inline-block;
+            height: 34px;
+            position: relative;
+            width: 60px;
+        }
+
+        .theme-switch input {
+            display: none;
+        }
+
+        .slider {
+            background-color: #ccc;
+            bottom: 0;
+            cursor: pointer;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            background-color: #fff;
+            bottom: 4px;
+            content: "";
+            height: 26px;
+            left: 4px;
+            position: absolute;
+            transition: .4s;
+            width: 26px;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: var(--container-bg);
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #ffffff;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .modal-buttons button {
+            padding: 8px 16px;
+        }
+
+        #cancelReset {
+            background-color: #f44336;
+        }
+
+        #confirmReset {
+            background-color: #4CAF50;
+        }
+
+        .quote {
+            position: fixed;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.5s;
+            font-size: 1.2rem;
+            font-family: 'Playfair Display', serif;
+            cursor: move;
+            user-select: none;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 300; /* This makes it lighter */
+        }
+
+        #credit {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            color: #888;
+            text-decoration: none;
+        }
+
+        #credit:hover {
+            color: #fff;
+        }
+
+        #createTaskBtn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        #createTaskBtn:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        .task {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            min-width: 200px;
+            cursor: move;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .task-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .task-close {
+            cursor: pointer;
+            font-size: 1.2rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .task:hover .task-close {
+            opacity: 1;
+        }
+
+        .task-timer {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .task-buttons button {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .hover-timer {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        #workingBtn:hover .hover-timer,
+        #playingBtn:hover .hover-timer {
+            opacity: 1;
+        }
+
+    </style>
+</head>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;700&display=swap" rel="stylesheet">
+<body>
+    <div class="container">
+        <h1>Work vs Play Time Tracker</h1>
+        <div class="buttons">
+            <button id="workingBtn">Working
+                <div class="hover-timer" id="workingHoverTimer">00:00:00</div>
+            </button>
+            <button id="stopBtn">Stop</button>
+            <button id="playingBtn">Playing
+                <div class="hover-timer" id="playingHoverTimer">00:00:00</div>
+            </button>
+        </div>
+        <div id="timer">00:00:00</div>
+        <div id="chartContainer">
+            <canvas id="timeChart"></canvas>
+            <div class="chart-legend">
+                <div id="workingLegend">Working: 0:00</div>
+                <div id="playingLegend">Playing: 0:00</div>
+            </div>
+        </div>
+        <button id="resetBtn">Reset</button>
+        <button id="inspireBtn">Inspire</button>
+    </div>
+    <div id="timeLegend">
+        <div id="workingLegend"></div>
+        <div id="playingLegend"></div>
+    </div>
+
+    <div class="theme-switch-wrapper">
+        <label class="theme-switch" for="checkbox">
+            <input type="checkbox" id="checkbox" />
+            <div class="slider"></div>
+        </label>
+    </div>
+
+    <div id="resetModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p>Are you sure you want to reset?</p>
+            <div class="modal-buttons">
+                <button id="cancelReset">Cancel</button>
+                <button id="confirmReset">Yes</button>
+            </div>
+        </div>
+    </div>
+
+    <button id="createTaskBtn">+ Create a Task</button>
+
+    <a id="credit" href="https://www.linkedin.com/in/naserjamal/" target="_blank">By Naser Jamal</a>
+
+    <script>
+        let playingTime = 0;
+        let workingTime = 0;
+        let currentMode = null;
+        let startTime;
+        let timerInterval;
+        let isDarkTheme = true;
+        let tasks = [];
+
+        const workingBtn = document.getElementById('workingBtn');
+        const playingBtn = document.getElementById('playingBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const inspireBtn = document.getElementById('inspireBtn');
+        const timerDisplay = document.getElementById('timer');
+        const themeToggle = document.getElementById('checkbox');
+        const resetModal = document.getElementById('resetModal');
+        const cancelReset = document.getElementById('cancelReset');
+        const confirmReset = document.getElementById('confirmReset');
+        const closeModal = document.getElementsByClassName('close')[0];
+        const createTaskBtn = document.getElementById('createTaskBtn');
+        const workingHoverTimer = document.getElementById('workingHoverTimer');
+        const playingHoverTimer = document.getElementById('playingHoverTimer');
+        const ctx = document.getElementById('timeChart').getContext('2d');
+
+        let chart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Working', 'Playing'],
+                datasets: [{
+                    data: [0, 0],
+                    backgroundColor: ['#2196F3', '#4CAF50']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                tooltips: {
+                    callbacks: {
+                        label: function(tooltipItem, data) {
+                            const dataset = data.datasets[tooltipItem.datasetIndex];
+                            const value = dataset.data[tooltipItem.index];
+                            return formatTime(value);
+                        }
+                    }
+                },
+                legend: {
+                    display: false
+                }
+            }
+        });
+
+        function updateTimer() {
+            const currentTime = new Date().getTime();
+            const elapsedTime = new Date(currentTime - startTime);
+            const hours = elapsedTime.getUTCHours().toString().padStart(2, '0');
+            const minutes = elapsedTime.getUTCMinutes().toString().padStart(2, '0');
+            const seconds = elapsedTime.getUTCSeconds().toString().padStart(2, '0');
+            timerDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+
+            if (currentMode === 'working') {
+                workingTime++;
+            } else if (currentMode === 'playing') {
+                playingTime++;
+            }
+
+            updateHoverTimers();
+            updateChartLegend();
+        }
+
+        function startTimer(mode) {
+            if (currentMode) {
+                stopTimer();
+            }
+            currentMode = mode;
+            startTime = new Date().getTime();
+            timerInterval = setInterval(updateTimer, 1000);
+            updateButtonStyles();
+        }
+
+        function stopTimer() {
+            if (currentMode) {
+                clearInterval(timerInterval);
+                currentMode = null;
+                timerDisplay.textContent = '00:00:00';
+                updateButtonStyles();
+                updateChart();
+            }
+        }
+
+        function updateChart() {
+            chart.data.datasets[0].data = [workingTime, playingTime];
+            chart.update();
+        }
+
+        function updateButtonStyles() {
+            workingBtn.classList.toggle('active', currentMode === 'working');
+            playingBtn.classList.toggle('active', currentMode === 'playing');
+            stopBtn.classList.toggle('active', !currentMode);
+        }
+
+        // function formatTime(seconds) {
+        //     if (seconds < 60) {
+        //         return `${Math.round(seconds)}`;
+        //     } else if (seconds < 3600) {
+        //         const minutes = Math.floor(seconds / 60);
+        //         const remainingSeconds = Math.round(seconds % 60);
+        //         return `${minutes} ${minutes !== 1 ? '' : ''} ${remainingSeconds}:${remainingSeconds !== 1 ? '' : ''}`;
+        //     } else {
+        //         const hours = Math.floor(seconds / 3600);
+        //         const minutes = Math.round((seconds % 3600) / 60);
+        //         return `${hours} ${hours !== 1 ? '' : ''} ${minutes}:${minutes !== 1 ? '' : ''}`;
+        //     }
+        // }
+
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const remainingSeconds = seconds % 60;
+
+            const formattedHours = String(hours).padStart(2, '0');
+            const formattedMinutes = String(minutes).padStart(2, '0');
+            const formattedSeconds = String(remainingSeconds).padStart(2, '0');
+
+            return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+        }
+
+
+        // function formatTime(seconds) {
+        //     if (seconds < 60) {
+        //         return `${Math.round(seconds)} s`;
+        //     } else if (seconds < 3600) {
+        //         const minutes = Math.floor(seconds / 60);
+        //         const remainingSeconds = Math.round(seconds % 60);
+        //         return `${minutes} m${minutes !== 1 ? '' : ''} ${remainingSeconds} s${remainingSeconds !== 1 ? '' : ''}`;
+        //     } else {
+        //         const hours = Math.floor(seconds / 3600);
+        //         const minutes = Math.round((seconds % 3600) / 60);
+        //         return `${hours} h${hours !== 1 ? '' : ''} ${minutes} m${minutes !== 1 ? '' : ''}`;
+        //     }
+        // }
+
+        // function formatTime(seconds) {
+        //     if (seconds < 60) {
+        //         return `${Math.round(seconds)} seconds`;
+        //     } else if (seconds < 3600) {
+        //         const minutes = Math.floor(seconds / 60);
+        //         const remainingSeconds = Math.round(seconds % 60);
+        //         return `${minutes} minute${minutes !== 1 ? 's' : ''} and ${remainingSeconds} second${remainingSeconds !== 1 ? 's' : ''}`;
+        //     } else {
+        //         const hours = Math.floor(seconds / 3600);
+        //         const minutes = Math.round((seconds % 3600) / 60);
+        //         return `${hours} hour${hours !== 1 ? 's' : ''} and ${minutes} minute${minutes !== 1 ? 's' : ''}`;
+        //     }
+        // }
+
+        function toggleTheme() {
+            isDarkTheme = !isDarkTheme;
+            document.body.style.setProperty('--bg-color', isDarkTheme ? '#121212' : '#f0f0f0');
+            document.body.style.setProperty('--text-color', isDarkTheme ? '#ffffff' : '#000000');
+            document.body.style.setProperty('--container-bg', isDarkTheme ? '#1e1e1e' : '#ffffff');
+            document.body.style.setProperty('--button-hover', isDarkTheme ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)');
+        }
+
+        function showResetModal() {
+        resetModal.style.display = 'block';
+    }
+
+    function hideResetModal() {
+        resetModal.style.display = 'none';
+    }
+
+    function resetTimer() {
+        stopTimer();
+        playingTime = 0;
+        workingTime = 0;
+        updateChart();
+        updateChartLegend();
+        hideResetModal();
+    }
+
+    // Inspirational quotes array
+    const inspirationalQuotes = [
+        // Add your 1,000 inspirational quotes here
+        "The only way to do great work is to love what you do",
+        "You don’t have to be great to start, but you have to start to be great.",
+        "One day or day one. You decide.",
+        "Small deeds done are better than great deeds planned.",
+        "You are what you do, not what you say you do.",
+        "People may doubt what you say, but they will believe what you do.",
+        "It does not matter how slowly you go as long as you do not stop.",
+        "There is only one proof of ability: action.",
+        "Every day do something that will inch you closer to a better tomorrow.",
+        "If what you are doing is not moving you towards your goals, then it’s moving you away from your goals.",
+        "Little by little does the trick.",
+        "The elevator to success is out of order. You’ll have to use the stairs… one step at a time.",
+        "Someday is not a day of the week.",
+        "The secret of getting things done is to act!",
+        "Inaction breeds doubt and fear. Action breeds confidence and courage.",
+        "The way to get started is to quit talking and begin doing.",
+        "Nothing happens until something moves.",
+        "Don’t try to rush progress. Remember, a step forward, no matter how small, is a step in the right direction. Keep believing.",
+        "Go for it now. The future is promised to no one.",
+        "The greatest amount of wasted time is the time not getting started.",
+        "A year from now you will wish you had started today.",
+        "The smallest deed is better than the grandest intention.",
+        "Be great in act, as you have been in thought.",
+        "Success seems to be connected with action. Successful people keep moving. They make mistakes but don’t quit.",
+        "Every action you take is a vote for the type of person you wish to become.",
+        "Be content to act, and leave the talking to others.",
+        "It is better to take many small steps in the right direction than to make a great leap forward only to stumble backward.",
+        "Wake up early and tackle the day before it tackles you. Be on offense, not defense.",
+        "For any movement to gain momentum, it must start with a small action.",
+        "The most effective way to do it, is to do it.",
+        "Act as if everything you do makes a difference. It does.",
+        "Though no one can go back and make a brand new start, anyone can start from now and make a brand new ending.",
+        "Today I will do what others won't, so tomorrow I can accomplish what others can't.",
+        "The secret of getting ahead is getting started. The secret of getting started is breaking your complex, overwhelming tasks into small manageable tasks, and then starting on the first one.",
+        "The most difficult thing is the decision to act; the rest is merely tenacity.",
+        "You never know what's around the corner. It could be everything. Or it could be nothing. You keep putting one foot in front of the other, and then one day you look back and you've climbed a mountain.",
+        "Don’t watch the clock; do what it does. Keep going.",
+        "Infuse your life with action. Don't wait for it to happen. Make it happen. Make your own future.",
+        "Act the way that you want to feel.",
+        "Even a snail will eventually reach its destination.",
+        "You cannot plow a field by turning it over in your mind. To begin, begin.",
+        "I think a lot of people dream. And while they are busy dreaming, the really happy people, the really successful people, the really interesting, powerful, engaged people? Are busy doing.",
+        "The only difference between where you are and where you want to be is the steps you haven’t taken yet.",
+        "Life is like riding a bicycle. To keep your balance you must keep moving.",
+        "The beginning is always today.",
+        "What you get by achieving your goals is not as important as what you become by achieving your goals.",
+        "Motivation is what gets you started. Habit is what keeps you going.",
+        "Nothing can stop the man with the right mental attitude from achieving his goal; nothing on earth can help the man with the wrong mental attitude.",
+        "The unfortunate thing about this world is that good habits are so much easier to give up than bad ones.",
+        "Bad habits are like a comfortable bed - easy to get into, but hard to get out of.",
+        "Feeling sorry for yourself, and your present condition is not only a waste of energy but the worst habit you could possibly have.",
+        "We are what we repeatedly do. Excellence, then, is not an act, but a habit.",
+        "You must have long-range goals to keep you from being frustrated by short-range failures.",
+        "First we form habits; then they form us. Conquer your bad habits or they will conquer you.",
+        "People with goals succeed because they know where they’re going.",
+        "You cannot expect to achieve new goals or move beyond your present circumstances unless you change.",
+        "Give your goals all you’ve got and you’ll be amazed at the energy that comes out of you.",
+        "If you chase two rabbits, both will escape.",
+        "When I feel tired, I just think about how great I will feel once I finally reach my goal.",
+        "Decide whether or not the goal is worth the risks involved. If it is, stop worrying.",
+        "If you don’t separate yourself from your distractions, your distractions will separate you from your goals and the life you want.",
+        "If opportunity doesn’t knock, build a door.",
+        "opportunity will only knock If you have a door.",
+        "To succeed, jump as quickly at opportunities as you do at conclusions.",
+        "If you believe it will work out, you will see opportunities. If you believe it won’t, you will see obstacles.",
+        "Success is where preparation and opportunity meet.",
+        "Don’t be pushed by your problems; be led by your dreams.",
+        "Success is not final, failure is not fatal: it is the courage to continue that counts."
+    ];
+
+    function showInspirationalQuote() {
+        const quote = inspirationalQuotes[Math.floor(Math.random() * inspirationalQuotes.length)];
+        const quoteElement = document.createElement('div');
+        quoteElement.classList.add('quote');
+        quoteElement.textContent = quote;
+
+        const maxX = window.innerWidth - 400;
+        const maxY = window.innerHeight - 200;
+        const randomX = Math.random() * maxX;
+        const randomY = Math.random() * maxY;
+
+        quoteElement.style.left = `${randomX}px`;
+        quoteElement.style.top = `${randomY}px`;
+
+        document.body.appendChild(quoteElement);
+
+        setTimeout(() => {
+            quoteElement.style.opacity = '1';
+        }, 100);
+
+        setTimeout(() => {
+            quoteElement.style.opacity = '0';
+            setTimeout(() => {
+                document.body.removeChild(quoteElement);
+            }, 500);
+        }, 30000);
+
+        makeDraggable(quoteElement);
+    }
+
+    function makeDraggable(element) {
+        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        element.onmousedown = dragMouseDown;
+
+        function dragMouseDown(e) {
+            e = e || window.event;
+            e.preventDefault();
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            document.onmouseup = closeDragElement;
+            document.onmousemove = elementDrag;
+        }
+
+        function elementDrag(e) {
+            e = e || window.event;
+            e.preventDefault();
+            pos1 = pos3 - e.clientX;
+            pos2 = pos4 - e.clientY;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            element.style.top = (element.offsetTop - pos2) + "px";
+            element.style.left = (element.offsetLeft - pos1) + "px";
+        }
+
+        function closeDragElement() {
+            document.onmouseup = null;
+            document.onmousemove = null;
+        }
+    }
+
+    function createTask() {
+        const taskName = prompt("Enter task name:");
+        if (!taskName) return;
+
+        const taskColor = prompt("Choose task color (Red, Blue, or Green) or leave blank:").toLowerCase();
+        const validColors = ['red', 'blue', 'green', 'black', 'pink', 'antiquewhite', 'azure'];
+        const color = taskColor === 'red' ? 'crimson' 
+             : taskColor === 'blue' ? 'dodgerblue' 
+             : taskColor === 'green' ? 'seagreen' 
+             : taskColor === '' ? 'gray'
+             : (validColors.includes(taskColor) ? taskColor : 'gray');
+
+        const timerOption = prompt("Set a timer (e.g., 1h, 30m) or leave blank for stopwatch:");
+        let timerSeconds = 0;
+        if (timerOption) {
+            const hours = parseInt(timerOption.match(/(\d+)h/) ? timerOption.match(/(\d+)h/)[1] : 0);
+            const minutes = parseInt(timerOption.match(/(\d+)m/) ? timerOption.match(/(\d+)m/)[1] : 0);
+            timerSeconds = hours * 3600 + minutes * 60;
+        }
+
+        const task = {
+            name: taskName,
+            color: color,
+            timer: timerSeconds,
+            elapsed: 0,
+            interval: null,
+            element: createTaskElement(taskName, color, timerSeconds)
+        };
+
+        tasks.push(task);
+        document.body.appendChild(task.element);
+        makeDraggable(task.element);
+    }
+
+    function createTaskElement(name, color, timer) {
+        const taskElement = document.createElement('div');
+        taskElement.classList.add('task');
+        taskElement.style.backgroundColor = color;
+
+        const header = document.createElement('div');
+        header.classList.add('task-header');
+        
+        const taskName = document.createElement('div');
+        taskName.classList.add('task-name');
+        taskName.textContent = name;
+
+        const closeBtn = document.createElement('div');
+        closeBtn.classList.add('task-close');
+        closeBtn.innerHTML = '&times;';
+        closeBtn.onclick = () => confirmDeleteTask(taskElement);
+
+        header.appendChild(taskName);
+        header.appendChild(closeBtn);
+
+        const timerDisplay = document.createElement('div');
+        timerDisplay.classList.add('task-timer');
+        timerDisplay.textContent = formatTaskTime(timer);
+
+        const startBtn = document.createElement('button');
+        startBtn.textContent = 'Start';
+        startBtn.onclick = () => startTaskTimer(taskElement);
+
+        const stopBtn = document.createElement('button');
+        stopBtn.textContent = 'Stop';
+        stopBtn.style.display = 'none';
+        stopBtn.onclick = () => stopTaskTimer(taskElement);
+
+        const buttonsContainer = document.createElement('div');
+        buttonsContainer.classList.add('task-buttons');
+        buttonsContainer.appendChild(startBtn);
+        buttonsContainer.appendChild(stopBtn);
+
+        taskElement.appendChild(header);
+        taskElement.appendChild(timerDisplay);
+        taskElement.appendChild(buttonsContainer);
+
+        return taskElement;
+    }
+
+    function startTaskTimer(taskElement) {
+        const task = tasks.find(t => t.element === taskElement);
+        if (!task) return;
+
+        task.interval = setInterval(() => {
+            if (task.timer > 0) {
+                task.timer--;
+                if (task.timer === 0) {
+                    stopTaskTimer(taskElement);
+                    alert(`Task "${task.name}" timer completed!`);
+                }
+            }
+            task.elapsed++;
+            taskElement.querySelector('.task-timer').textContent = formatTaskTime(task.timer > 0 ? task.timer : task.elapsed);
+        }, 1000);
+
+        taskElement.querySelector('button:first-child').style.display = 'none';
+        taskElement.querySelector('button:last-child').style.display = 'inline-block';
+    }
+
+    function stopTaskTimer(taskElement) {
+        const task = tasks.find(t => t.element === taskElement);
+        if (!task) return;
+
+        clearInterval(task.interval);
+        task.interval = null;
+
+        taskElement.querySelector('button:first-child').style.display = 'inline-block';
+        taskElement.querySelector('button:last-child').style.display = 'none';
+    }
+
+    function formatTaskTime(seconds) {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const remainingSeconds = seconds % 60;
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+
+    function confirmDeleteTask(taskElement) {
+        const confirmDelete = confirm("Are you sure you want to delete this task?");
+        if (confirmDelete) {
+            const taskIndex = tasks.findIndex(t => t.element === taskElement);
+            if (taskIndex !== -1) {
+                clearInterval(tasks[taskIndex].interval);
+                tasks.splice(taskIndex, 1);
+            }
+            document.body.removeChild(taskElement);
+        }
+    }
+
+    function updateHoverTimers() {
+        workingHoverTimer.textContent = formatTime(workingTime);
+        playingHoverTimer.textContent = formatTime(playingTime);
+    }
+
+    function updateChartLegend() {
+        document.getElementById('workingLegend').textContent = `Working: ${formatTime(workingTime)}`;
+        document.getElementById('playingLegend').textContent = `Playing: ${formatTime(playingTime)}`;
+    }
+
+    workingBtn.addEventListener('click', () => startTimer('working'));
+    playingBtn.addEventListener('click', () => startTimer('playing'));
+    stopBtn.addEventListener('click', stopTimer);
+    resetBtn.addEventListener('click', showResetModal);
+    themeToggle.addEventListener('change', toggleTheme);
+    inspireBtn.addEventListener('click', showInspirationalQuote);
+    createTaskBtn.addEventListener('click', createTask);
+
+    cancelReset.addEventListener('click', hideResetModal);
+    confirmReset.addEventListener('click', resetTimer);
+    closeModal.addEventListener('click', hideResetModal);
+
+    window.addEventListener('click', (event) => {
+        if (event.target === resetModal) {
+            hideResetModal();
+        }
+    });
+
+    updateButtonStyles();
+    updateChartLegend();
+</script>
+	
