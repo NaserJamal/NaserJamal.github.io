@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naser Jamal - End-to-End Machine Learning Engineer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #0366d6;
+            --secondary-color: #28a745;
+            --bg-color: #f6f8fa;
+            --text-color: #24292e;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        h1, h2, h3 {
+            color: var(--primary-color);
+        }
+        .projects {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        .project-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            transition: transform 0.3s ease;
+        }
+        .project-card:hover {
+            transform: translateY(-5px);
+        }
+        .project-card h3 {
+            margin-top: 0;
+        }
+        .project-card p {
+            font-size: 0.9rem;
+        }
+        .project-card a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .project-card a:hover {
+            text-decoration: underline;
+        }
+        .education, .teaching {
+            margin-top: 2rem;
+        }
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .social-links a {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            transition: color 0.3s ease;
+        }
+        .social-links a:hover {
+            color: var(--secondary-color);
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 1rem;
+            }
+            .projects {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>👋 Hi, I'm Naser Jamal</h1>
+            <h2>🚀 End-to-End Machine Learning Engineer</h2>
+            <p>I create full-stack applications, leveraging AI & Software development to build enterprise solutions and deploy them on the web.</p>
+        </header>
+
+        <section class="projects">
+            <h2>🔭 Current Projects</h2>
+            <div class="project-card">
+                <h3>ExcelGPT</h3>
+                <p>Bringing state-of-the-art LLMs into Excel</p>
+                <ul>
+                    <li>Uses GPT-4o mini for efficient analysis</li>
+                    <li>Analyze 1,000 rows for just $0.01</li>
+                </ul>
+                <a href="https://tinyurl.com/Excel-GPT" target="_blank">Try the demo</a>
+            </div>
+            <div class="project-card">
+                <h3>Chat with your documents</h3>
+                <p>RAG application for document interaction</p>
+                <ul>
+                    <li>Utilizes GPT-4o mini and text-embedding-3-large</li>
+                    <li>Built with ChromaDB and React</li>
+                </ul>
+                <a href="https://tinyurl.com/ChatPDF-ai" target="_blank">Experience it here</a>
+            </div>
+            <div class="project-card">
+                <h3>code8</h3>
+                <p>LLM-powered code analysis dashboard</p>
+                <ul>
+                    <li>Supports OpenAI and Anthropic APIs</li>
+                    <li>Custom profile saving and loading</li>
+                </ul>
+                <a href="https://tinyurl.com/code8-py" target="_blank">Check it out</a>
+            </div>
+            <div class="project-card">
+                <h3>auto8</h3>
+                <p>Automatic Flake8 issue fixer</p>
+                <a href="https://tinyurl.com/auto8-py" target="_blank">Learn more</a>
+            </div>
+            <div class="project-card">
+                <h3>tune8</h3>
+                <p>Fine-tune JSONL dashboard</p>
+                <a href="https://tinyurl.com/tune8-ai" target="_blank">Explore tune8</a>
+            </div>
+            <div class="project-card">
+                <h3>rooq</h3>
+                <p>Automated file/folder structure creator</p>
+                <a href="https://tinyurl.com/rooq-ai" target="_blank">Discover rooq</a>
+            </div>
+        </section>
+
+        <section class="education">
+            <h2>🎓 Education & Certifications</h2>
+            <ul>
+                <li>BS in Computer Engineering from Abu Dhabi University</li>
+                <li>Multiple professional certificates from IBM, AWS, and Duke University</li>
+                <li>50+ Machine Learning & Software Engineering Certificates</li>
+            </ul>
+        </section>
+
+        <section class="teaching">
+            <h2>🎨 Teaching</h2>
+            <ul>
+                <li><a href="https://www.skillshare.com/user/naserjamal" target="_blank">SkillShare Courses</a></li>
+                <li><a href="https://www.udemy.com/user/naserjamal/" target="_blank">Udemy Courses</a></li>
+            </ul>
+        </section>
+
+        <footer>
+            <p>Let's connect and build something amazing together! 💻✨</p>
+            <div class="social-links">
+                <a href="https://www.linkedin.com/in/naserjamal/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                <a href="https://github.com/yourgithubusername" target="_blank"><i class="fab fa-github"></i></a>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
